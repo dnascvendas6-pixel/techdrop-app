@@ -95,7 +95,7 @@ export default function Home() {
         <div style={{ marginBottom: '15px' }}>
           <input
             type="text"
-            placeholder="🔍 Buscar produtos estilo Shopee..."
+            placeholder="🔍 Buscar produtos..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #d1d5db', outline: 'none', fontSize: '15px', boxSizing: 'border-box' }}
