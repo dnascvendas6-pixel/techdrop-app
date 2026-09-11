@@ -50,6 +50,7 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCheckout, setIsCheckout] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [pixData, setPixData] = useState<{ qrCode: string; qrCodeBase64: string } | null>(null);
 
   const categories = ['Todos', 'Gamer', 'Escritório', 'Suporte Técnico'];
 
@@ -76,6 +77,22 @@ export default function Home() {
   };
 
   const cartTotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
+  const handleGerarPix = async () => {
+    try {
+      const res = await fetch('/api/pix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: cartTotal }),
+      });
+      const data = await res.json();
+      if (data.qrCode) {
+        setPixData({ qrCode: data.qrCode, qrCodeBase64: data.qrCodeBase64 });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '15px' }}>
@@ -190,7 +207,7 @@ export default function Home() {
           <div style={{ backgroundColor: '#fff', width: '100%', maxWidth: '400px', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px' }}>
               <h2 style={{ margin: 0, fontSize: '18px' }}>{isCheckout ? 'Finalizar Pedido (Pix)' : 'Seu Carrinho'}</h2>
-              <button onClick={() => { setIsCartOpen(false); setIsCheckout(false); setPaymentSuccess(false); }} style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✖</button>
+              <button onClick={() => { setIsCartOpen(false); setIsCheckout(false); setPaymentSuccess(false); setPixData(null); }} style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✖</button>
             </div>
 
             {!isCheckout ? (
@@ -219,7 +236,13 @@ export default function Home() {
                       <span>Total:</span>
                       <span style={{ color: '#059669' }}>R$ {cartTotal.toFixed(2)}</span>
                     </div>
-                    <button onClick={() => setIsCheckout(true)} style={{ width: '100%', backgroundColor: '#059669', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>
+                    <button 
+                      onClick={() => {
+                        setIsCheckout(true);
+                        handleGerarPix();
+                      }} 
+                      style={{ width: '100%', backgroundColor: '#059669', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
+                    >
                       Avançar para Pagamento
                     </button>
                   </div>
@@ -235,16 +258,14 @@ export default function Home() {
               <div style={{ paddingTop: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 10px 0' }}>Escaneie o QR Code abaixo ou copie a chave Pix para pagar R$ {cartTotal.toFixed(2)}:</p>
                 <div style={{ display: 'flex', justifyContent: 'center', margin: '15px 0' }}>
-                 <img 
-  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixData?.qrCode || '')}`} 
-  alt="QR Code Pix" 
-  style={{ width: '180px', height: '180px', borderRadius: '8px' }} 
-/>
-
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixData?.qrCode || 'Gerando...')}`} 
+                    alt="QR Code Pix" 
+                    style={{ width: '180px', height: '180px', borderRadius: '8px' }} 
+                  />
                 </div>
                 <div style={{ backgroundColor: '#f3f4f6', padding: '10px', borderRadius: '8px', fontSize: '12px', wordBreak: 'break-all', fontFamily: 'monospace', marginBottom: '15px' }}>
                   {pixData?.qrCode || "Gerando chave Pix..."}
-
                 </div>
                 <button onClick={() => setPaymentSuccess(true)} style={{ width: '100%', backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', marginTop: 'auto' }}>
                   Simular Confirmação de Pagamento
