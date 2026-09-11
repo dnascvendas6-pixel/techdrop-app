@@ -235,10 +235,16 @@ export default function Home() {
               <div style={{ paddingTop: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 10px 0' }}>Escaneie o QR Code abaixo ou copie a chave Pix para pagar R$ {cartTotal.toFixed(2)}:</p>
                 <div style={{ display: 'flex', justifyContent: 'center', margin: '15px 0' }}>
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-426614174000520400005303986540562.505802BR5913TechDropStore6009SAO%20PAULO62070503***6304E2CA" alt="QR Code Pix" style={{ width: '180px', height: '180px', borderRadius: '8px' }} />
+                 <img 
+  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixData?.qrCode || '')}`} 
+  alt="QR Code Pix" 
+  style={{ width: '180px', height: '180px', borderRadius: '8px' }} 
+/>
+
                 </div>
                 <div style={{ backgroundColor: '#f3f4f6', padding: '10px', borderRadius: '8px', fontSize: '12px', wordBreak: 'break-all', fontFamily: 'monospace', marginBottom: '15px' }}>
-                  00020126580014BR.GOV.BCB.PIX0136techdrop-pix-key-sample520400005303986540562.505802BR
+                  {pixData?.qrCode || "Gerando chave Pix..."}
+
                 </div>
                 <button onClick={() => setPaymentSuccess(true)} style={{ width: '100%', backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', marginTop: 'auto' }}>
                   Simular Confirmação de Pagamento
